@@ -106,24 +106,34 @@ function saveVersion() {
     if (newVersion !== undefined) {
         console.log(colors.yellow + "El punto sin retorno");
         console.log("Guardando archivos");
-        var packageText = fs.readFileSync(packagePath, "utf8");
-        var bowerText = fs.readFileSync(bowerPath, "utf8");
-        
-        var newPackage = packageText.replace(version, newVersion);
-        var newBower = bowerText.replace(version, newVersion);
 
-        console.log(colors.green + "package.json" + colors.reset);
-        console.log(newPackage);
-        console.log(colors.green + "bower.js" + colors.reset);
-        console.log(newBower);
-
-        fs.writeFileSync(packagePath, newPackage, 'utf8');
-        fs.writeFileSync(bowerPath, newBower, 'utf8');
+        writeVersion(version, newVersion);
 
         commitVersion();
     } else {
         console.log(colors.red + "Aún no hay una nueva versión");
     }
+}
+
+function revertVersion() {
+    console.log("Volviendo a la versión " + version);
+    writeVersion(newVersion, version);
+}
+
+function writeVersion(from, to) {
+    var packageText = fs.readFileSync(packagePath, "utf8");
+    var bowerText = fs.readFileSync(bowerPath, "utf8");
+    
+    var newPackage = packageText.replace(from, to);
+    var newBower = bowerText.replace(from, to);
+
+    console.log(colors.green + "package.json" + colors.reset);
+    console.log(newPackage);
+    console.log(colors.green + "bower.js" + colors.reset);
+    console.log(newBower);
+
+    fs.writeFileSync(packagePath, newPackage, 'utf8');
+    fs.writeFileSync(bowerPath, newBower, 'utf8');
 }
 
 function sendTag(url) {
@@ -133,6 +143,7 @@ function sendTag(url) {
         console.log(stdout);
         if (error !== null) {
             console.log('copy error: ' + error);
+            revertVersion();
             rl.prompt();
         } else {
             exit();
@@ -144,6 +155,7 @@ function generateTag() {
     exec("svn info " + rootPath, function (error, stdout, stderr) {
         if (error !== null) {
             console.log('info error: ' + error);
+            revertVersion();
             rl.prompt();
         } else {
             console.log(colors.green + "Generando el tag" + colors.reset);
@@ -158,6 +170,7 @@ function commitVersion() {
     exec("svn commit -m 'Nueva version " + newVersion + " del componente' " + rootPath, function (error, stdout, stderr) {
         if (error !== null) {
             console.log('info error: ' + error);
+            revertVersion();
             rl.prompt();
         } else {
             console.log(stdout);

@@ -129,7 +129,7 @@ function writeVersion(from, to) {
 
     console.log(colors.green + "package.json" + colors.reset);
     console.log(newPackage);
-    console.log(colors.green + "bower.js" + colors.reset);
+    console.log(colors.green + "bower.json" + colors.reset);
     console.log(newBower);
 
     fs.writeFileSync(packagePath, newPackage, 'utf8');
@@ -166,7 +166,7 @@ function generateTag() {
 }
 
 function commitVersion() {
-    console.log("Commitenado nueva version");
+    console.log(colors.green + "Commitenado nueva version" + colors.reset);
     exec("svn commit -m 'Nueva version " + newVersion + " del componente' " + rootPath, function (error, stdout, stderr) {
         if (error !== null) {
             console.log('info error: ' + error);
